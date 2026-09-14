@@ -1,579 +1,123 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carnet de voyage — Portfolio photo</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,440;0,9..144,560;1,9..144,440;1,9..144,560&family=Caveat:wght@500;600;700&display=swap');
- 
-  :root{
-    --paper: #ece4cf;
-    --paper-deep: #ded2ac;
-    --paper-shadow: #cabf99;
-    --ink: #2c2a22;
-    --ink-soft: #5c5541;
-    --forest: #3b5a40;
-    --forest-deep: #263c2a;
-    --rust: #a8432e;
-    --rust-deep: #7c3020;
-    --gold: #b08d46;
-    --thread: rgba(44,42,34,0.28);
-    --max: 40rem;
-  }
- 
-  *{ box-sizing:border-box; }
-  html{ scroll-behavior:smooth; }
- 
-  body{
-    margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Fraunces', Georgia, serif;
-    font-optical-sizing:auto;
-    font-weight:440;
-    line-height:1.65;
-    -webkit-font-smoothing:antialiased;
-  }
- 
-  /* aged paper grain, applied once to the whole page */
-  body::before{
-    content:"";
-    position:fixed; inset:0;
-    pointer-events:none;
-    z-index:1;
-    opacity:.5;
-    mix-blend-mode:multiply;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.17  0 0 0 0 0.16  0 0 0 0 0.13  0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
- 
-  h1,h2,h3{ margin:0; font-weight:560; }
-  p{ margin:0 0 1.1em; }
-  a{ color:inherit; }
- 
-  .hand{
-    font-family:'Caveat', cursive;
-    font-weight:600;
-  }
- 
-  /* ---------- skip link / accessibility ---------- */
-  .skip{
-    position:absolute; left:-999px; top:0;
-    background:var(--ink); color:var(--paper); padding:.6em 1em;
-    z-index:100;
-  }
-  .skip:focus{ left:1em; top:1em; }
- 
-  /* ================= tabs (notebook page tabs) ================= */
-  .nav-toggle-input{ display:none; }
- 
-  .tabs{
-    position:fixed;
-    top:6.5rem;
-    right:0;
-    z-index:40;
-    display:flex;
-    flex-direction:column;
-    gap:.6rem;
-  }
-  .tab{
-    text-decoration:none;
-    font-family:'Fraunces', serif;
-    font-size:.92rem;
-    font-weight:500;
-    letter-spacing:.02em;
-    color:var(--paper);
-    padding:.65em .5em .65em .9em;
-    border-radius:.35em 0 0 .35em;
-    box-shadow:-2px 2px 5px rgba(0,0,0,.18);
-    transform:translateX(2.15rem);
-    transition:transform .25s ease;
-    writing-mode:horizontal-tb;
-  }
-  .tab:hover, .tab:focus-visible{ transform:translateX(0); }
-  .tab--forest{ background:var(--forest); }
-  .tab--rust{ background:var(--rust); }
-  .tab--ink{ background:var(--ink-soft); }
-  .tab--gold{ background:var(--gold); }
- 
-  .nav-toggle-label{ display:none; }
- 
-  @media (max-width:640px){
-    .tabs{
-      flex-direction:row;
-      top:auto; bottom:0; right:0; left:0;
-      justify-content:center;
-      background:var(--paper-deep);
-      padding:.5rem .5rem calc(.5rem + env(safe-area-inset-bottom));
-      box-shadow:0 -2px 8px rgba(0,0,0,.15);
-      transform:translateY(100%);
-      transition:transform .3s ease;
-    }
-    .nav-toggle-input:checked ~ .tabs{ transform:translateY(0); }
-    .tab{ transform:none; border-radius:.35em; box-shadow:none; }
-    .nav-toggle-label{
-      display:flex; align-items:center; justify-content:center;
-      position:fixed; bottom:1rem; right:1rem; z-index:41;
-      width:3rem; height:3rem; border-radius:50%;
-      background:var(--ink); color:var(--paper);
-      font-family:'Caveat',cursive; font-size:1.4rem;
-      box-shadow:0 3px 8px rgba(0,0,0,.3);
-    }
-  }
- 
-  /* ================= cover ================= */
-  .cover{
-    position:relative;
-    min-height:100svh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:2rem 1.5rem;
-    overflow:hidden;
-  }
- 
-  .cover__compass{
-    position:absolute;
-    width:min(70vh,640px);
-    height:min(70vh,640px);
-    opacity:.14;
-    color:var(--ink);
-  }
- 
-  .cover__title{
-    font-size:clamp(3rem, 10vw, 6.4rem);
-    font-style:italic;
-    line-height:.95;
-    color:var(--forest-deep);
-    position:relative;
-    z-index:2;
-  }
- 
-  .cover__subtitle{
-    position:relative; z-index:2;
-    margin-top:1.1rem;
-    font-size:clamp(1.05rem,2.4vw,1.3rem);
-    color:var(--ink-soft);
-  }
- 
-  .cover__route{
-    position:absolute;
-    bottom:6.5rem;
-    width:min(90%, 520px);
-    color:var(--rust);
-  }
-  .cover__route path{
-    fill:none;
-    stroke:currentColor;
-    stroke-width:2;
-    stroke-linecap:round;
-    stroke-dasharray:6 10;
-    stroke-dashoffset:1000;
-    animation:draw 2.6s ease-out forwards .3s;
-  }
-  .cover__route circle{ fill:var(--rust); }
- 
-  @keyframes draw{ to{ stroke-dashoffset:0; } }
- 
-  .cover__scroll{
-    position:absolute;
-    bottom:1.8rem;
-    font-family:'Caveat', cursive;
-    font-size:1.25rem;
-    color:var(--ink-soft);
-  }
-  .cover__scroll::after{
-    content:"";
-    display:block;
-    width:1px; height:2rem;
-    background:var(--ink-soft);
-    margin:.4rem auto 0;
-    opacity:.6;
-  }
- 
-  @media (prefers-reduced-motion:reduce){
-    .cover__route path{ animation:none; stroke-dashoffset:0; }
-  }
- 
-  /* ================= layout shell ================= */
-  main{ position:relative; z-index:2; }
- 
-  .intro{
-    max-width:var(--max);
-    margin:0 auto;
-    padding:5rem 1.5rem 3rem;
-  }
-  .intro h2{
-    font-size:clamp(1.7rem,4vw,2.2rem);
-    color:var(--forest-deep);
-    margin-bottom:.7rem;
-  }
-  .intro__meta{
-    font-family:'Caveat', cursive;
-    font-size:1.3rem;
-    color:var(--rust);
-    display:block;
-    margin-bottom:.3rem;
-  }
- 
-  /* ================= chapters ================= */
-  .chapter{
-    max-width:64rem;
-    margin:0 auto;
-    padding:3.5rem 1.5rem;
-  }
- 
-  .chapter__meta{
-    display:flex;
-    gap:1rem;
-    flex-wrap:wrap;
-    align-items:baseline;
-    max-width:var(--max);
-    margin:0 auto 1.6rem;
-    font-family:'Caveat', cursive;
-    font-size:1.35rem;
-  }
-  .chapter[data-accent="forest"] .chapter__meta{ color:var(--forest-deep); }
-  .chapter[data-accent="rust"] .chapter__meta{ color:var(--rust-deep); }
-  .chapter__place{ color:var(--ink-soft); font-family:'Fraunces',serif; font-size:.95rem; letter-spacing:.02em; }
- 
-  .chapter__body{
-    display:grid;
-    grid-template-columns:1.1fr 1fr;
-    gap:2.5rem;
-    align-items:center;
-  }
-  .chapter--reverse .chapter__body{ direction:rtl; }
-  .chapter--reverse .chapter__body > *{ direction:ltr; }
- 
-  @media (max-width:760px){
-    .chapter__body{ grid-template-columns:1fr; }
-    .chapter--reverse .chapter__body{ direction:ltr; }
-  }
- 
-  .chapter__text h2{
-    font-size:clamp(1.6rem,3.6vw,2.1rem);
-    margin-bottom:.6rem;
-  }
-  .chapter[data-accent="forest"] .chapter__text h2{ color:var(--forest-deep); }
-  .chapter[data-accent="rust"] .chapter__text h2{ color:var(--rust-deep); }
- 
-  .chapter__text p{ color:var(--ink-soft); max-width:34rem; }
- 
-  .handwritten-note{
-    font-family:'Caveat', cursive;
-    font-size:1.4rem;
-    color:var(--ink);
-    line-height:1.3;
-    margin-top:1rem;
-  }
- 
-  /* ---- photo frame: torn paper + tape, ready to receive a real <img> ---- */
-  .photo-frame{
-    position:relative;
-    background:var(--paper-deep);
-    padding:.8rem .8rem 2.6rem;
-    box-shadow:0 10px 24px rgba(30,26,15,.22);
-  }
-  .photo-frame--left{ justify-self:end; transform:rotate(-2.2deg); }
-  .photo-frame--right{ justify-self:start; transform:rotate(2deg); }
-  @media (max-width:760px){
-    .photo-frame--left, .photo-frame--right{ justify-self:center; }
-  }
- 
-  .photo-frame figcaption{
-    position:absolute;
-    bottom:.6rem; left:.9rem; right:.9rem;
-    font-family:'Caveat', cursive;
-    font-size:1.15rem;
-    color:var(--ink-soft);
-  }
- 
-  .photo{
-    aspect-ratio:4/5;
-    width:min(74vw, 320px);
-    overflow:hidden;
-    background:var(--paper);
-    display:block;
-  }
-  .photo svg{ width:100%; height:100%; display:block; }
- 
-  .tape{
-    position:absolute;
-    width:5.2rem; height:1.7rem;
-    background:linear-gradient(180deg, rgba(176,141,70,.55), rgba(176,141,70,.42));
-    box-shadow:0 1px 2px rgba(0,0,0,.12);
-    opacity:.85;
-  }
-  .tape--tl{ top:-.7rem; left:-1rem; transform:rotate(-9deg); }
-  .tape--tr{ top:-.7rem; right:-1rem; transform:rotate(8deg); }
- 
-  /* ---- wax-seal date stamp ---- */
-  .stamp{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:2.6rem; height:2.6rem;
-    border-radius:50%;
-    border:1.5px solid currentColor;
-    font-family:'Caveat', cursive;
-    font-size:.95rem;
-    flex:none;
-  }
- 
-  /* ================= contact / postcard ================= */
-  .contact{
-    max-width:40rem;
-    margin:2rem auto 6rem;
-    padding:0 1.5rem;
-  }
-  .postcard{
-    position:relative;
-    background:var(--paper-deep);
-    border:1px solid var(--thread);
-    padding:2rem 1.8rem;
-    box-shadow:0 12px 26px rgba(30,26,15,.2);
-  }
-  .postcard::before{
-    content:"";
-    position:absolute; inset:.5rem;
-    border:1px dashed var(--thread);
-    pointer-events:none;
-  }
-  .postcard h2{
-    font-size:clamp(1.6rem,3.6vw,2rem);
-    font-style:italic;
-    color:var(--forest-deep);
-    margin-bottom:.6rem;
-  }
-  .postcard p{ color:var(--ink-soft); }
-  .postcard__lines{ margin-top:1.4rem; display:flex; flex-direction:column; gap:.5rem; }
-  .postcard__lines a{
-    text-decoration:none;
-    font-family:'Caveat', cursive;
-    font-size:1.5rem;
-    color:var(--rust-deep);
-    border-bottom:1px solid transparent;
-  }
-  .postcard__lines a:hover, .postcard__lines a:focus-visible{ border-color:currentColor; }
- 
-  .postcard__seal{
-    position:absolute;
-    top:1.2rem; right:1.4rem;
-    width:3.4rem; height:3.4rem;
-    border-radius:50%;
-    background:var(--rust);
-    color:var(--paper);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Caveat', cursive; font-size:1.05rem;
-    box-shadow:0 3px 6px rgba(0,0,0,.25);
-    transform:rotate(-6deg);
-  }
- 
-  .colophon{
-    text-align:center;
-    padding:1.5rem 1rem 2.5rem;
-    font-family:'Caveat', cursive;
-    font-size:1.05rem;
-    color:var(--ink-soft);
-  }
- 
-  :focus-visible{ outline:2px solid var(--forest); outline-offset:3px; }
-</style>
+<title>Lucas — Nature &amp; Travel Photography</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
  
-<a class="skip" href="#apropos">Aller au contenu</a>
- 
-<input type="checkbox" id="nav-toggle" class="nav-toggle-input">
-<label for="nav-toggle" class="nav-toggle-label" aria-label="Ouvrir le menu">✎</label>
- 
-<nav class="tabs" aria-label="Sections du carnet">
-  <a class="tab tab--forest" href="#nature">Nature</a>
-  <a class="tab tab--rust" href="#voyages">Voyages</a>
-  <a class="tab tab--ink" href="#apropos">À propos</a>
-  <a class="tab tab--gold" href="#contact">Contact</a>
-</nav>
- 
-<!-- ================= COUVERTURE ================= -->
-<header class="cover" id="top">
-  <svg class="cover__compass" viewBox="0 0 200 200" aria-hidden="true">
-    <circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="1"/>
-    <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" stroke-width="1"/>
-    <g stroke="currentColor" stroke-width="1">
-      <line x1="100" y1="8" x2="100" y2="192"/>
-      <line x1="8" y1="100" x2="192" y2="100"/>
-      <line x1="30" y1="30" x2="170" y2="170"/>
-      <line x1="170" y1="30" x2="30" y2="170"/>
-    </g>
-    <path d="M100 40 L112 100 L100 160 L88 100 Z" fill="currentColor"/>
-  </svg>
- 
-  <div class="cover__text">
-    <h1 class="cover__title">Carnet de<br>voyage</h1>
-    <p class="cover__subtitle">Photographies de nature &amp; de voyage<br>par Lucas</p>
-  </div>
- 
-  <svg class="cover__route" viewBox="0 0 500 90" aria-hidden="true">
-    <path d="M10 60 C 90 10, 160 80, 240 40 S 400 10, 490 55"/>
-    <circle cx="10" cy="60" r="4"/>
-    <circle cx="240" cy="40" r="4"/>
-    <circle cx="490" cy="55" r="4"/>
-  </svg>
- 
-  <p class="cover__scroll">Faire défiler pour ouvrir le carnet</p>
+<header class="site-header">
+  <a class="site-header__mark" href="#top">Lucas</a>
+  <nav class="site-header__nav">
+    <a href="#chapters">Chapters</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </nav>
 </header>
  
-<main>
+<section class="hero" id="top">
+  <div class="topo" aria-hidden="true"></div>
+  <h1 class="hero__title">Nature,<br>at a distance.</h1>
+  <p class="hero__subtitle">
+    Photographs from forests, coastlines and long journeys — a growing collection,
+    organised by place and by year.
+  </p>
+</section>
  
-  <!-- ================= À PROPOS ================= -->
-  <section class="intro" id="apropos">
-    <span class="intro__meta">Feuille de garde</span>
-    <h2>Sur la route, appareil en bandoulière</h2>
-    <p>
-      Je photographie ce qui bouge peu et ce qui ne reste jamais en place&nbsp;: la lumière
-      d'une forêt au petit matin, la faune qu'on croise si on sait attendre, les côtes et les
-      sommets qui jalonnent mes voyages. Chaque image de ce carnet vient d'un lieu précis,
-      d'une date, d'une attente — c'est ce que j'ai essayé de garder en le mettant en page.
-    </p>
-    <p>
-      Bénévole à la LPO et photographe animalier à mes heures, je shoote au Canon R7 aussi
-      bien en forêt qu'en itinérance. <em>(Remplacez ce texte par votre propre biographie.)</em>
-    </p>
-  </section>
+<section class="about" id="about">
+  <span class="eyebrow">About</span>
+  <h2>Behind the lens</h2>
+  <p>
+    I photograph the landscapes and wildlife I come across while travelling, and the
+    ones closer to home. Volunteering with a bird conservation group has shaped a lot
+    of how I look at nature — patience first, the frame second. Most of this work is
+    shot on a Canon R7.
+  </p>
+  <p><em>(Replace this paragraph with your own biography.)</em></p>
+</section>
  
-  <!-- ================= CHAPITRE 1 — NATURE ================= -->
-  <section class="chapter" id="nature" data-accent="forest">
-    <div class="chapter__meta">
-      <span class="stamp">LPO</span>
-      <span class="chapter__place">Forêts &amp; faune — France</span>
-    </div>
-    <div class="chapter__body">
-      <!-- Remplacez le bloc .photo par une vraie image :
-           <img src="votre-photo.jpg" alt="description"> à la place du <svg> -->
-      <figure class="photo-frame photo-frame--left">
-        <div class="tape tape--tl"></div>
-        <div class="tape tape--tr"></div>
-        <div class="photo">
-          <svg viewBox="0 0 320 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <rect width="320" height="400" fill="#dfe6d6"/>
-            <g fill="#3b5a40">
-              <path d="M60 260 L100 170 L140 260 Z"/>
-              <path d="M110 280 L155 160 L200 280 Z"/>
-              <path d="M170 270 L210 190 L250 270 Z"/>
-            </g>
-            <rect y="270" width="320" height="130" fill="#2c2a22" opacity=".08"/>
-            <circle cx="230" cy="90" r="8" fill="#a8432e"/>
-            <path d="M226 88 q4 -6 8 0" stroke="#a8432e" fill="none" stroke-width="2"/>
-          </svg>
-        </div>
-        <figcaption>croquis — à remplacer par votre photo</figcaption>
-      </figure>
+<section class="index" id="chapters" aria-label="Chapters">
  
-      <div class="chapter__text">
-        <h2>Sur la trace du vivant</h2>
-        <p>
-          Affûts silencieux, longues attentes derrière un objectif, et parfois la chance
-          d'un passage furtif. Décrivez ici votre approche de la photo de nature&nbsp;: le
-          matériel, les lieux, l'espèce ou le sujet qui vous a le plus marqué.
-        </p>
-        <p class="hand handwritten-note">« Attendu 3 heures pour cette seule minute. »</p>
-      </div>
-    </div>
-  </section>
+  <a class="index__row" href="nature.html">
+    <span class="index__num">01</span>
+    <span class="index__title">Nature</span>
+    <span class="index__desc">An ongoing collection of wildlife and landscape work, not tied to a single trip.</span>
+    <span class="index__year">Ongoing</span>
+  </a>
  
-  <!-- ================= CHAPITRE 2 — VOYAGES ================= -->
-  <section class="chapter chapter--reverse" id="voyages" data-accent="rust">
-    <div class="chapter__meta">
-      <span class="stamp" style="color:var(--rust-deep)">PT</span>
-      <span class="chapter__place">Algarve, Portugal</span>
-    </div>
-    <div class="chapter__body">
-      <figure class="photo-frame photo-frame--right">
-        <div class="tape tape--tl"></div>
-        <div class="tape tape--tr"></div>
-        <div class="photo">
-          <svg viewBox="0 0 320 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <rect width="320" height="400" fill="#f0e2c9"/>
-            <circle cx="250" cy="90" r="26" fill="#a8432e" opacity=".85"/>
-            <path d="M0 260 C 60 220, 100 260, 160 235 S 260 220, 320 250 L320 400 L0 400 Z" fill="#3b5a40" opacity=".65"/>
-            <path d="M0 300 C 70 270, 130 300, 190 280 S 270 275, 320 300 L320 400 L0 400 Z" fill="#2c2a22" opacity=".18"/>
-          </svg>
-        </div>
-        <figcaption>croquis — à remplacer par votre photo</figcaption>
-      </figure>
+  <a class="index__row" href="france-2024-2026.html">
+    <span class="index__num">02</span>
+    <span class="index__title">France</span>
+    <span class="index__desc">Home ground — landscapes and everyday places across the country.</span>
+    <span class="index__year">2024–2026</span>
+  </a>
  
-      <div class="chapter__text">
-        <h2>Falaises et lumière d'automne</h2>
-        <p>
-          Un futur carnet pourra prendre pour exemple votre virée d'Algarve&nbsp;:
-          Tavira, la Ria Formosa, Benagil, Lagos, Sagres — racontez l'itinéraire, la
-          saison, ce que la lumière faisait aux paysages en fin de journée.
-        </p>
-        <p class="hand handwritten-note">« La côte change de couleur toutes les heures. »</p>
-      </div>
-    </div>
-  </section>
+  <a class="index__row" href="romania-2024.html">
+    <span class="index__num">03</span>
+    <span class="index__title">Romania</span>
+    <span class="index__desc">Carpathian ridgelines and villages, edit to reflect the actual trip.</span>
+    <span class="index__year">2024</span>
+  </a>
  
-  <!-- ================= CHAPITRE 3 — À VENIR (JAPON) ================= -->
-  <section class="chapter" id="japon" data-accent="forest">
-    <div class="chapter__meta">
-      <span class="stamp">JP</span>
-      <span class="chapter__place">Tokyo, Japon — à venir</span>
-    </div>
-    <div class="chapter__body">
-      <figure class="photo-frame photo-frame--left">
-        <div class="tape tape--tl"></div>
-        <div class="tape tape--tr"></div>
-        <div class="photo">
-          <svg viewBox="0 0 320 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <rect width="320" height="400" fill="#e7e0c9"/>
-            <circle cx="160" cy="150" r="46" fill="#a8432e" opacity=".8"/>
-            <path d="M40 300 L110 190 L150 250 L190 210 L280 300 Z" fill="#3b5a40" opacity=".7"/>
-            <g stroke="#2c2a22" stroke-width="6">
-              <line x1="90" y1="330" x2="90" y2="260"/>
-              <line x1="150" y1="330" x2="150" y2="260"/>
-              <line x1="80" y1="270" x2="160" y2="270"/>
-              <line x1="75" y1="255" x2="165" y2="255"/>
-            </g>
-          </svg>
-        </div>
-        <figcaption>croquis — un futur carnet, encore à écrire</figcaption>
-      </figure>
+  <a class="index__row" href="rome-2024.html">
+    <span class="index__num">04</span>
+    <span class="index__title">Rome</span>
+    <span class="index__desc">A short city chapter — ruins, light, and street scenes.</span>
+    <span class="index__year">2024</span>
+  </a>
  
-      <div class="chapter__text">
-        <h2>Un prochain chapitre</h2>
-        <p>
-          Deux années à Tokyo, au Japon, à partir de janvier 2027&nbsp;:
-          de quoi remplir ce carnet de nouvelles pages, entre rizières, littoral et vie
-          quotidienne. Cette section n'attend que vos premières photos.
-        </p>
-        <p class="hand handwritten-note">« Prochaine page — encore blanche. »</p>
-      </div>
-    </div>
-  </section>
+  <a class="index__row" href="europe-2025.html">
+    <span class="index__num">05</span>
+    <span class="index__title">Europe</span>
+    <span class="index__desc">A wider year of shorter trips across the continent.</span>
+    <span class="index__year">2025</span>
+  </a>
  
-  <!-- ================= CONTACT ================= -->
-  <section class="contact" id="contact">
-    <div class="postcard">
-      <div class="postcard__seal">timbre</div>
-      <h2>Écrivez-moi un mot</h2>
-      <p>
-        Pour une collaboration, un tirage ou simplement échanger sur un lieu photographié
-        dans ce carnet.
-      </p>
-      <div class="postcard__lines">
-        <a href="mailto:lucasrouer.lr@gmail.com">lucasrouer.lr@gmail.com</a>
-        <a href="https://instagram.com/lcs_outdoor" target="_blank" rel="noopener">@lcs_outdoor</a>
-      </div>
-    </div>
-  </section>
+  <a class="index__row" href="china-2025.html">
+    <span class="index__num">06</span>
+    <span class="index__title">China</span>
+    <span class="index__desc">Cities, countryside and everything in between.</span>
+    <span class="index__year">2025</span>
+  </a>
  
-</main>
+  <a class="index__row" href="ibiza-2026.html">
+    <span class="index__num">07</span>
+    <span class="index__title">Ibiza</span>
+    <span class="index__desc">Coastline, light and texture away from the season's crowds.</span>
+    <span class="index__year">2026</span>
+  </a>
  
-<p class="colophon">Carnet tenu à jour, une page à la fois.</p>
+  <a class="index__row" href="portugal-2026.html">
+    <span class="index__num">08</span>
+    <span class="index__title">Portugal</span>
+    <span class="index__desc">Algarve cliffs and coves, then Lisbon's hills and light.</span>
+    <span class="index__year">2026</span>
+  </a>
+ 
+  <a class="index__row" href="japan-2027.html">
+    <span class="index__num">09</span>
+    <span class="index__title">Japan</span>
+    <span class="index__desc">Two years based in Itako, Ibaraki — a chapter still to be written.</span>
+    <span class="index__year">2027</span>
+  </a>
+ 
+</section>
+ 
+<section class="contact" id="contact">
+  <h2>Get in touch</h2>
+  <p>For prints, collaborations, or just to talk about a place in this collection.</p>
+  <div class="contact__links">
+    <a href="mailto:your.email@example.com">your.email@example.com</a>
+    <a href="https://instagram.com/yourhandle" target="_blank" rel="noopener">@yourhandle</a>
+  </div>
+</section>
+ 
+<footer class="site-footer">
+  <span>Lucas — Nature &amp; Travel Photography</span>
+  <span>Updated as the collection grows</span>
+</footer>
  
 </body>
 </html>
